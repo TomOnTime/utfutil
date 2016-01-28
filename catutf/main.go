@@ -1,8 +1,6 @@
 package main
 
-// Functions that autodetect UTF-8 and UTF-16/LE/BE but return UTF-8.
-// The goal is to create functions that "just do the right thing"
-// no matter what UTF encoding is used.
+// Demo the utfutil ReadFile function.
 
 import (
 	"fmt"
