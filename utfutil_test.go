@@ -22,7 +22,7 @@ func TestReadFile(t *testing.T) {
 	//    done
 	for _, tst := range []struct {
 		works bool // This combination is expected to work.
-		ume   utfutil.Default
+		ume   utfutil.EncodingHint
 		name  string
 	}{
 		// Assume missing BOM means UTF8
