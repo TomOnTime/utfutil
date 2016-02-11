@@ -55,7 +55,7 @@ func TestReadFile(t *testing.T) {
 			}
 		} else {
 			if string(expected) != string(actual) {
-				t.Log("SUCCESS: %v/%v: failed as expected.", tst.ume, tst.name)
+				t.Logf("SUCCESS: %v/%v: failed as expected.", tst.ume, tst.name)
 			} else {
 				t.Errorf("FAILUREish: %v/%v: unexpected success!", tst.ume, tst.name)
 			}

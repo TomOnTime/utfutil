@@ -1,4 +1,4 @@
-// Package ioutil implements some I/O utility functions that
+// Package utfutil implements some I/O utility functions that
 // are UTF-encoding agnostic.
 package utfutil
 
@@ -36,12 +36,12 @@ import (
 type EncodingHint int
 
 const (
-	UTF8 EncodingHint = iota
-	UTF16LE
-	UTF16BE
-	WINDOWS = UTF16LE // File came from a MS-Windows system
-	POSIX   = UTF8    // File came from Unix or Unix-like systems
-	HTML5   = UTF8    // File came from the web
+	UTF8    EncodingHint = iota // UTF-8
+	UTF16LE                     // UTF 16 Little Endian
+	UTF16BE                     // UTF 16 Big Endian
+	WINDOWS = UTF16LE           // File came from a MS-Windows system
+	POSIX   = UTF8              // File came from Unix or Unix-like systems
+	HTML5   = UTF8              // File came from the web
 )
 
 // About utfutil.HTML5:
