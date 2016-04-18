@@ -1,24 +1,28 @@
-// Package utfutil implements some I/O utility functions that
-// are UTF-encoding agnostic.
+// Package utfutil provides methods that make it easy to read data in an UTF-encoding agnostic.
 package utfutil
 
 // These functions autodetect UTF BOM and return UTF-8. If no
-// BOM is found, they assume UTF-8 (Linux) or UTF-16LE (Windows).
+// BOM is found, a hint is provided as to which encoding to assume.
 // You can use them as replacements for os.Open() and ioutil.ReadFile()
 // when the encoding of the file is unknown.
 
+// utfutil.OpenFile() is a replacement for os.Open().
+// utfutil.ReadFile() is a replacement for ioutil.ReadFile().
+// utfutil.NewScanner() takes a filename and returns a Scanner.
+// utfutil.NewReader() rewraps an existing scanner to make it UTF-encoding agnostic.
+// utfutil.BytesReader() takes a []byte and decodes it to UTF-8.
+
 // Since it is impossible to guess 100% correctly if there is no BOM,
 // the functions take a 2nd parameter of type "EncodingHint" where you
-// specify the default encoding.
+// specify the default encoding for BOM-less data.
 
-// In the future I'd like to add a default type "AUTO" which
-// makes some educated guesses about the default type, similar
-// to the uchardet command. Hopefully that kind of functionality
-// will be added to golang.org/x/text/encoding/unicode :-)
+// If someone writes a golang equivalent of uchatdet, I'll add
+// a hint called "AUTO" which uses it.
 
 // Inspiration: I wrote this after spending half a day trying
 // to figure out how to use unicode.BOMOverride.
 // Hopefully this will save other golang newbies from the same.
+// (golang.org/x/text/encoding/unicode)
 
 import (
 	"bufio"
@@ -50,6 +54,33 @@ const (
 // mark (also known as BOM) is considered more authoritative
 // than anything else." http://www.w3.org/TR/encoding/#specification-hooks
 
+// OpenFile is the equivalent of os.Open().
+func OpenFile(name string, d EncodingHint) (io.Reader, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return NewReader(f, d), nil
+}
+
+// ReadFile is the equivalent of ioutil.ReadFile()
+func ReadFile(name string, d EncodingHint) ([]byte, error) {
+	file, err := OpenFile(name, d)
+	if err != nil {
+		return nil, err
+	}
+	return ioutil.ReadAll(file)
+}
+
+// NewScanner is a convenience function that takes a filename and returns a scanner.
+func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
+	f, err := OpenFile(name, d)
+	if err != nil {
+		return nil, err
+	}
+	return bufio.NewScanner(f), nil
+}
+
 // NewReader wraps a Reader to decode Unicode to UTF-8 as it reads.
 func NewReader(r io.Reader, d EncodingHint) io.Reader {
 	var decoder *encoding.Decoder
@@ -73,34 +104,7 @@ func NewReader(r io.Reader, d EncodingHint) io.Reader {
 	return transform.NewReader(r, unicode.BOMOverride(decoder))
 }
 
-// OpenFile is the equivalent of os.Open().
-func OpenFile(name string, d EncodingHint) (io.Reader, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	return NewReader(f, d), nil
-}
-
-// ReadFile is the equivalent of ioutil.ReadFile()
-func ReadFile(name string, d EncodingHint) ([]byte, error) {
-	file, err := OpenFile(name, d)
-	if err != nil {
-		return nil, err
-	}
-	return ioutil.ReadAll(file)
-}
-
 // BytesReader is a convenience function that takes a []byte and decodes them to UTF-8.
 func BytesReader(b []byte, d EncodingHint) io.Reader {
 	return NewReader(bytes.NewReader(b), d)
-}
-
-// NewScanner is a convenience function that takes a filename and returns a scanner.
-func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
-	f, err := OpenFile(name, d)
-	if err != nil {
-		return nil, err
-	}
-	return bufio.NewScanner(f), nil
 }
