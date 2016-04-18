@@ -1,21 +1,22 @@
 # utfutil
 
-Utilities to make it easier to use golang.org/x/text/encoding/unicode
+Utilities to make it easier to read text encoded as UTF-16.
 
 ## Dealing with UTF-16 files from Windows.
 
 Ever have code that worked for years until you received a file from
 a MS-Windows system that just didn't work at all?  Looking at a hex
-dump you realize every other byte is \0.  WTF?
-
-No, UTF.  UTF-16LE with an optional BOM.
+dump you realize every other byte is \0.  WTF?  
+No, UTF.  More specifically UTF-16LE with an optional BOM.
 
 What does all that mean?  Well, first you should read
 ["The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)"](http://www.joelonsoftware.com/articles/Unicode.html) by Joel Spolsky.
 
-However if you use Golang, you can take the easy way out.
-Just change ioutil.ReadFile() to utfutil.ReadFile() and things
-should just work.
+Now you can spend an afternoon trying to figure out how the heck
+to put all that together and use `golang.org/x/text/encoding/unicode`
+to decode UTF-16LE.  However if you use Golang, you can take the
+easy way out change ioutil.ReadFile() to utfutil.ReadFile().
+Everything will just work.
 
 ### utfutil.ReadFile() is the equivalent of ioutil.ReadFile()
 
@@ -73,6 +74,5 @@ HTML5   = UTF8      (i.e. a good assumption if file is from the web)
 
 ## Future Directions
 
-In the future I'd like to add a default type "AUTO" which
-makes some educated guesses about the default type, similar
-to the uchardet command.  Pull requests gladly accepted!
+If someone writes a golang equivalent of uchatdet, I'll add
+a hint called "AUTO" which uses it. That would be awesome.
