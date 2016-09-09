@@ -6,14 +6,26 @@ Utilities to make it easier to read text encoded as UTF-16.
 
 Have you encountered this situation?  Code that has worked for years
 suddenly breaks.  It turns out someone tried to use it with a file
-that came from a MS-Windows system and everything breaks.
+that came from a MS-Windows system. Now this perfectly good code stops
+working.
+
 Looking at a hex dump you realize every other byte is \0.  WTF?
 No, UTF.  More specifically UTF-16LE with an optional BOM.
 
 What does all that mean?  Well, first you should read ["The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)"](http://www.joelonsoftware.com/articles/Unicode.html) by Joel Spolsky.
 
-Now you are an expert.  You can spend an afternoon trying to figure out how the heck to put all that together and use `golang.org/x/text/encoding/unicode` to decode UTF-16LE.  However I've already done that for you. Now you can take the easy way out change `ioutil.ReadFile()` to `utfutil.ReadFile()`.
+Now you understand what the problem is, but how do you fix it?
+Well, you can spend a week trying to figure out how to use
+`golang.org/x/text/encoding/unicode` and you'll be able to
+decode UTF-16LE files.
+
+However, if you don't have a week, you can just use this module.
+You can take the easy way out change `ioutil.ReadFile()` to
+`utfutil.ReadFile()`.
 Everything will just work.
+
+The goal of `utfutl` is to provide replacement functions
+that magically do the right thing.
 
 ### utfutil.ReadFile() is the equivalent of ioutil.ReadFile()
 
@@ -50,7 +62,6 @@ It works like os.Open():
 ```
 		s, err := utfutil.NewScanner(filename, utfutil.HTML5)
 ```
-
 
 ## Encoding hints:
 
