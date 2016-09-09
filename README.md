@@ -2,7 +2,7 @@
 
 Utilities to make it easier to read text encoded as UTF-16.
 
-## Dealing with UTF-16 files from Windows.
+## Dealing with UTF-16 files you receive from Windows.
 
 Ever have code that worked for years until you received a file from a MS-Windows system that just didn't work at all?  Looking at a hex dump you realize every other byte is \0.  WTF?  No, UTF.  More specifically UTF-16LE with an optional BOM.
 
