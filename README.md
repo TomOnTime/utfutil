@@ -17,15 +17,19 @@ What does all that mean?  Well, first you should read ["The Absolute Minimum Eve
 Now you understand what the problem is, but how do you fix it?
 Well, you can spend a week trying to figure out how to use
 `golang.org/x/text/encoding/unicode` and you'll be able to
-decode UTF-16LE files.
+decode UTF-16LE files. (No offense to the authors of that
+module. It is a fantastic module but if you aren't already
+an expert in Unicode encoding, it is pretty difficult to use.)
 
-However, if you don't have a week, you can just use this module.
-You can take the easy way out change `ioutil.ReadFile()` to
+If you don't have a week, you can just use this module.
+Take the easy way out!  Just change `ioutil.ReadFile()` to
 `utfutil.ReadFile()`.
 Everything will just work.
 
 The goal of `utfutl` is to provide replacement functions
-that magically do the right thing.
+that magically do the right thing. There is a demo
+program that shows how to use it called [catutf](https://github.com/TomOnTime/utfutil/blob/master/catutf/main.go).
+
 
 ### utfutil.ReadFile() is the equivalent of ioutil.ReadFile()
 
