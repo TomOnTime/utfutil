@@ -16,12 +16,12 @@ func TestReadFile(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	// The test files were generate with:
+	// The test files were generated with:
 	//    for i in $(iconv  -l|grep UTF)  ; do
 	//        iconv -f UTF-8 -t $i calblur8.htm > calblur8.htm.$i
 	//    done
 	for _, tst := range []struct {
-		works bool // This combination is expected to work.
+		works bool // is combination is expected to work?
 		ume   utfutil.EncodingHint
 		name  string
 	}{
