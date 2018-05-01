@@ -26,7 +26,6 @@ package utfutil
 // (golang.org/x/text/encoding/unicode)
 
 import (
-	"bufio"
 	"bytes"
 	"io"
 	"io/ioutil"
@@ -41,13 +40,44 @@ import (
 type EncodingHint int
 
 const (
-	UTF8    EncodingHint = iota // UTF-8
-	UTF16LE                     // UTF 16 Little Endian
-	UTF16BE                     // UTF 16 Big Endian
-	WINDOWS = UTF16LE           // File came from a MS-Windows system
-	POSIX   = UTF8              // File came from Unix or Unix-like systems
-	HTML5   = UTF8              // File came from the web
+	// UTF8 indicates the specified encoding.
+	UTF8 EncodingHint = iota
+	// UTF16LE indicates the specified encoding.
+	UTF16LE
+	// UTF16BE indicates the specified encoding.
+	UTF16BE
+	// WINDOWS indicates that the file came from a MS-Windows system
+	WINDOWS = UTF16LE
+	// POSIX indicates that the file came from Unix or Unix-like systems
+	POSIX = UTF8
+	// HTML5 indicates that the file came from the web
+	HTML5 = UTF8
 )
+
+// UTFReadCloser describes the utfutil ReadCloser structure.
+type UTFReadCloser interface {
+	Read(p []byte) (n int, err error)
+	Close() error
+}
+
+// ReadCloser is a readcloser for the UTFUtil package.
+type readCloser struct {
+	file   *os.File
+	reader io.Reader
+}
+
+// Read implements the standard Reader interface.
+func (u readCloser) Read(p []byte) (n int, err error) {
+	return u.reader.Read(p)
+}
+
+// Close implements the standard Closer interface.
+func (u readCloser) Close() error {
+	if u.file != nil {
+		return u.file.Close()
+	}
+	return nil
+}
 
 // About utfutil.HTML5:
 // This technique is recommended by the W3C for use in HTML 5:
@@ -56,12 +86,14 @@ const (
 // than anything else." http://www.w3.org/TR/encoding/#specification-hooks
 
 // OpenFile is the equivalent of os.Open().
-func OpenFile(name string, d EncodingHint) (io.Reader, error) {
+func OpenFile(name string, d EncodingHint) (UTFReadCloser, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
-	return NewReader(f, d), nil
+
+	rc := readCloser{file: f}
+	return NewReader(rc, d), nil
 }
 
 // ReadFile is the equivalent of ioutil.ReadFile()
@@ -70,20 +102,22 @@ func ReadFile(name string, d EncodingHint) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 	return ioutil.ReadAll(file)
 }
 
 // NewScanner is a convenience function that takes a filename and returns a scanner.
-func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
-	f, err := OpenFile(name, d)
-	if err != nil {
-		return nil, err
-	}
-	return bufio.NewScanner(f), nil
-}
+// todo: fix this up
+// func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
+// 	f, err := OpenFile(name, d)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return bufio.NewScanner(f), nil
+// }
 
 // NewReader wraps a Reader to decode Unicode to UTF-8 as it reads.
-func NewReader(r io.Reader, d EncodingHint) io.Reader {
+func NewReader(r io.Reader, d EncodingHint) UTFReadCloser {
 	var decoder *encoding.Decoder
 	switch d {
 	case UTF8:
@@ -102,7 +136,14 @@ func NewReader(r io.Reader, d EncodingHint) io.Reader {
 	}
 
 	// Make a Reader that uses utf16bom:
-	return transform.NewReader(r, unicode.BOMOverride(decoder))
+	if rc, ok := r.(readCloser); ok {
+		rc.reader = transform.NewReader(rc.file, unicode.BOMOverride(decoder))
+		return rc
+	}
+
+	return readCloser{
+		reader: transform.NewReader(r, unicode.BOMOverride(decoder)),
+	}
 }
 
 // BytesReader is a convenience function that takes a []byte and decodes them to UTF-8.

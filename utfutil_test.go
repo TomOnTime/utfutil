@@ -3,10 +3,11 @@ package utfutil_test
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/TomOnTime/utfutil"
+	"github.com/malexdev/utfutil"
 )
 
 func TestReadFile(t *testing.T) {
@@ -62,4 +63,20 @@ func TestReadFile(t *testing.T) {
 		}
 	}
 
+}
+
+func TestReadAndCloseFile(t *testing.T) {
+	file := filepath.Join("testdata", "calblur8.htm.UTF-8")
+	_, err := utfutil.ReadFile(file, utfutil.UTF8)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f, err := os.OpenFile(file, os.O_RDONLY|os.O_EXCL, 0)
+	if err != nil {
+		t.Errorf("FAIL: Unable to open file in exclusive mode after reading, handle must still be open\n")
+	}
+
+	f.Close()
+	t.Log("SUCCESS: Closed file after reading")
 }
