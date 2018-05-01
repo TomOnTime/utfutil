@@ -2,6 +2,17 @@
 
 Utilities to make it easier to read text encoded as UTF-16.
 
+## Forked
+
+I noticed that [TomOnTime/utfutil](https://github.com/TomOnTime/utfutil) wasn't closing file handles, which I needed.
+
+Once I complete the TODO below I'll submit a PR upstream.
+
+### TODO before upstream merge
+
+	[ ] Test my changes to `OpenFile`, `ReadFile`, `NewReader` in real programs.
+	[ ] Implement `NewScanner` with a new `ScanCloser` interface (I didn't need this at the moment).
+
 ## Dealing with UTF-16 files you receive from Windows.
 
 Have you encountered this situation?  Code that has worked for years
