@@ -26,6 +26,7 @@ package utfutil
 // (golang.org/x/text/encoding/unicode)
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 	"io/ioutil"
@@ -79,6 +80,51 @@ func (u readCloser) Close() error {
 	return nil
 }
 
+// UTFScanCloser describes a new utfutil ScanCloser structure.
+// It's similar to ReadCloser, but with a scanner instead of a reader.
+type UTFScanCloser interface {
+	Buffer(buf []byte, max int)
+	Bytes() []byte
+	Err() error
+	Scan() bool
+	Split(split bufio.SplitFunc)
+	Text() string
+	Close() error
+}
+
+type scanCloser struct {
+	file    *os.File
+	scanner *bufio.Scanner
+}
+
+func (sc *scanCloser) Buffer(buf []byte, max int) {
+	sc.scanner.Buffer(buf, max)
+}
+
+func (sc *scanCloser) Bytes() []byte {
+	return sc.scanner.Bytes()
+}
+
+func (sc *scanCloser) Err() error {
+	return sc.scanner.Err()
+}
+
+func (sc *scanCloser) Scan() bool {
+	return sc.scanner.Scan()
+}
+
+func (sc *scanCloser) Split(split bufio.SplitFunc) {
+	sc.scanner.Split(split)
+}
+
+func (sc *scanCloser) Text() string {
+	return sc.scanner.Text()
+}
+
+func (sc *scanCloser) Close() error {
+	return sc.file.Close()
+}
+
 // About utfutil.HTML5:
 // This technique is recommended by the W3C for use in HTML 5:
 // "For compatibility with deployed content, the byte order
@@ -107,14 +153,13 @@ func ReadFile(name string, d EncodingHint) ([]byte, error) {
 }
 
 // NewScanner is a convenience function that takes a filename and returns a scanner.
-// todo: fix this up
-// func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
-// 	f, err := OpenFile(name, d)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return bufio.NewScanner(f), nil
-// }
+func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
+	f, err := OpenFile(name, d)
+	if err != nil {
+		return nil, err
+	}
+	return bufio.NewScanner(f), nil
+}
 
 // NewReader wraps a Reader to decode Unicode to UTF-8 as it reads.
 func NewReader(r io.Reader, d EncodingHint) UTFReadCloser {
