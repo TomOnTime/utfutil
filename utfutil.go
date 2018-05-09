@@ -93,35 +93,42 @@ type UTFScanCloser interface {
 }
 
 type scanCloser struct {
-	file    *os.File
+	file    UTFReadCloser
 	scanner *bufio.Scanner
 }
 
-func (sc *scanCloser) Buffer(buf []byte, max int) {
+// Buffer will run the Buffer functoin on the underlying bufio.Scanner.
+func (sc scanCloser) Buffer(buf []byte, max int) {
 	sc.scanner.Buffer(buf, max)
 }
 
-func (sc *scanCloser) Bytes() []byte {
+// Bytes will run the Bytes functoin on the underlying bufio.Scanner.
+func (sc scanCloser) Bytes() []byte {
 	return sc.scanner.Bytes()
 }
 
-func (sc *scanCloser) Err() error {
+// Err will run the Err functoin on the underlying bufio.Scanner.
+func (sc scanCloser) Err() error {
 	return sc.scanner.Err()
 }
 
-func (sc *scanCloser) Scan() bool {
+// Scan will run the Scan functoin on the underlying bufio.Scanner.
+func (sc scanCloser) Scan() bool {
 	return sc.scanner.Scan()
 }
 
-func (sc *scanCloser) Split(split bufio.SplitFunc) {
+// Split will run the Split function on the underlying bufio.Scanner.
+func (sc scanCloser) Split(split bufio.SplitFunc) {
 	sc.scanner.Split(split)
 }
 
-func (sc *scanCloser) Text() string {
+// Text will return the text from the underlying bufio.Scanner.
+func (sc scanCloser) Text() string {
 	return sc.scanner.Text()
 }
 
-func (sc *scanCloser) Close() error {
+// Close will close the underlying file handle.
+func (sc scanCloser) Close() error {
 	return sc.file.Close()
 }
 
@@ -153,12 +160,16 @@ func ReadFile(name string, d EncodingHint) ([]byte, error) {
 }
 
 // NewScanner is a convenience function that takes a filename and returns a scanner.
-func NewScanner(name string, d EncodingHint) (*bufio.Scanner, error) {
+func NewScanner(name string, d EncodingHint) (UTFScanCloser, error) {
 	f, err := OpenFile(name, d)
 	if err != nil {
 		return nil, err
 	}
-	return bufio.NewScanner(f), nil
+
+	return scanCloser{
+		scanner: bufio.NewScanner(f),
+		file:    f,
+	}, nil
 }
 
 // NewReader wraps a Reader to decode Unicode to UTF-8 as it reads.
