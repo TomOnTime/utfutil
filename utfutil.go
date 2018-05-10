@@ -97,22 +97,22 @@ type scanCloser struct {
 	scanner *bufio.Scanner
 }
 
-// Buffer will run the Buffer functoin on the underlying bufio.Scanner.
+// Buffer will run the Buffer function on the underlying bufio.Scanner.
 func (sc scanCloser) Buffer(buf []byte, max int) {
 	sc.scanner.Buffer(buf, max)
 }
 
-// Bytes will run the Bytes functoin on the underlying bufio.Scanner.
+// Bytes will run the Bytes function on the underlying bufio.Scanner.
 func (sc scanCloser) Bytes() []byte {
 	return sc.scanner.Bytes()
 }
 
-// Err will run the Err functoin on the underlying bufio.Scanner.
+// Err will run the Err function on the underlying bufio.Scanner.
 func (sc scanCloser) Err() error {
 	return sc.scanner.Err()
 }
 
-// Scan will run the Scan functoin on the underlying bufio.Scanner.
+// Scan will run the Scan function on the underlying bufio.Scanner.
 func (sc scanCloser) Scan() bool {
 	return sc.scanner.Scan()
 }
