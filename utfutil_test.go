@@ -1,12 +1,15 @@
 package utfutil_test
 
 import (
+	"bufio"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/TomOnTime/utfutil"
+	"github.com/malexdev/utfutil"
 )
 
 func TestReadFile(t *testing.T) {
@@ -62,4 +65,82 @@ func TestReadFile(t *testing.T) {
 		}
 	}
 
+}
+
+func TestReadAndCloseFile(t *testing.T) {
+	file := filepath.Join("testdata", "calblur8.htm.UTF-8")
+	_, err := utfutil.ReadFile(file, utfutil.UTF8)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f, err := os.OpenFile(file, os.O_RDONLY|os.O_EXCL, 0)
+	if err != nil {
+		t.Errorf("FAIL: Unable to open file in exclusive mode after reading, handle must still be open\n")
+	}
+
+	f.Close()
+	t.Log("SUCCESS: Closed file after reading")
+}
+
+func TestReadAndCloseScanner(t *testing.T) {
+	file := filepath.Join("testdata", "calblur8.htm.UTF-8")
+	scanner, err := utfutil.NewScanner(file, utfutil.UTF8)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for scanner.Scan() {
+		scanner.Text()
+	}
+
+	if err := scanner.Close(); err != nil {
+		t.Errorf("FAIL: Unable to close file handle after scan")
+	}
+
+	f, err := os.OpenFile(file, os.O_RDONLY|os.O_EXCL, 0)
+	if err != nil {
+		t.Errorf("FAIL: Unable to open file in exclusive mode after reading, handle must still be open")
+	}
+
+	if err := f.Close(); err != nil {
+		t.Errorf("FAIL: Unable to close file handle after reading")
+	}
+
+	t.Logf("SUCCESS: Read and closed file handle")
+}
+
+func TestReadAndCloseFileReader(t *testing.T) {
+	file := filepath.Join("testdata", "calblur8.htm.UTF-8")
+	fr, err := utfutil.OpenFile(file, utfutil.UTF8)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	r := bufio.NewReader(fr)
+	for {
+		_, _, err := r.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+
+			log.Fatal(err)
+		}
+	}
+
+	if err := fr.Close(); err != nil {
+		t.Errorf("FAIL: Unable to close file handle after reading")
+	}
+
+	f, err := os.OpenFile(file, os.O_RDONLY|os.O_EXCL, 0)
+	if err != nil {
+		t.Errorf("FAIL: Unable to open file in exclusive mode after reading, handle must still be open\n")
+	}
+
+	if err := f.Close(); err != nil {
+		t.Errorf("FAIL: Unable to close file handle after reading")
+	}
+
+	t.Logf("SUCCESS: Read and closed file handle")
 }

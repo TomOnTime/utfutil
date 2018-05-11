@@ -7,7 +7,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/TomOnTime/utfutil"
+	"github.com/malexdev/utfutil"
 )
 
 func main() {
