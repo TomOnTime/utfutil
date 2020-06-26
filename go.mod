@@ -1,4 +1,4 @@
-module github.com/StackExchange/vendor/github.com/TomOnTime/utfutil
+module github.com/TomOnTime/utfutil
 
 go 1.14
 
