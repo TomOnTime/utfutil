@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/TomOnTime/utfutil"
+	"github.com/malexdev/utfutil"
 )
 
 func TestReadFile(t *testing.T) {
