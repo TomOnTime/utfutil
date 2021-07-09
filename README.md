@@ -8,7 +8,7 @@ Have you encountered this situation?  Code that has worked for years
 suddenly breaks.  It turns out someone tried to use it with a file
 that came from a MS-Windows system. Now this perfectly good code stops
 working.
-Looking at a hex dump you realize every other byte is \0.  WTF?
+Looking at a hex dump you realize every other byte is `\0`.  WTF?
 No, UTF.  More specifically UTF-16LE with an optional BOM.
 
 What does all that mean?  Well, first you should read ["The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)"](http://www.joelonsoftware.com/articles/Unicode.html) by Joel Spolsky.
@@ -30,45 +30,45 @@ that magically do the right thing. There is a demo
 program that shows how to use it called [catutf](https://github.com/TomOnTime/utfutil/blob/master/catutf/main.go).
 
 
-### utfutil.ReadFile() is the equivalent of ioutil.ReadFile()
+### `utfutil.ReadFile()` is the equivalent of `ioutil.ReadFile()`
 
-OLD: Works with UTF8 and ASCII files:
+**OLD:** Works with UTF8 and ASCII files:
 
-```
-		data, err := ioutil.ReadFile(filename)
-```
-
-NEW: Works if someone gives you a Windows UTF-16LE file occasionally but normally you are processing UTF8 files:
-
-```
-		data, err := utfutil.ReadFile(filename, utfutil.UTF8)
+```go
+data, err := ioutil.ReadFile(filename)
 ```
 
-### utfutil.OpenFile() is the equivalent of os.Open().
+**NEW:** Works if someone gives you a Windows UTF-16LE file occasionally but normally you are processing UTF8 files:
 
-OLD: Works with UTF8 and ASCII files:
-
-```
-		data, err := os.Open(filename)
+```go
+data, err := utfutil.ReadFile(filename, utfutil.UTF8)
 ```
 
-NEW: Works if someone gives you a file with a BOM:
+### `utfutil.OpenFile()` is the equivalent of `os.Open()`
 
+**OLD:** Works with UTF8 and ASCII files:
+
+```go
+data, err := os.Open(filename)
 ```
-		data, err := utfutil.OpenFile(filename, utfutil.HTML5)
+
+**NEW:** Works if someone gives you a file with a BOM:
+
+```go
+data, err := utfutil.OpenFile(filename, utfutil.HTML5)
 ```
 
-### utfutil.NewScanner() is for reading files line-by-line
+### `utfutil.NewScanner()` is for reading files line-by-line
 
-It works like os.Open():
+It works like `os.Open()`:
 
-```
-		s, err := utfutil.NewScanner(filename, utfutil.HTML5)
+```go
+s, err := utfutil.NewScanner(filename, utfutil.HTML5)
 ```
 
 ## Encoding hints:
 
-What's that second argument all about?    utfutil.UTF8?  utfutil.HTML5?
+What's that second argument all about?  `utfutil.UTF8`?  `utfutil.HTML5`?
 
 If a file has no BOM, it is impossible to guess the file encoding with
 100% accuracy.  Therefore, the 2nd parameter is an
