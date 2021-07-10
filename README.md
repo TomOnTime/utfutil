@@ -85,5 +85,5 @@ HTML5   = UTF8      (i.e. a reasonable guess if file is from the web)
 
 ## Future Directions
 
-If someone writes a golang equivalent of uchatdet, I'll add a hint
-called "AUTO" which uses it. That would be awesome. Volunteers?
+If someone writes a Golang equivalent of uchardet, I'll add a hint
+called `AUTO` which uses it. That would be awesome. Volunteers?
