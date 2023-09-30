@@ -206,3 +206,51 @@ func NewReader(r io.Reader, d EncodingHint) UTFReadCloser {
 func BytesReader(b []byte, d EncodingHint) io.Reader {
 	return NewReader(bytes.NewReader(b), d)
 }
+
+type UTFWriteCloser interface {
+	Write(p []byte) (n int, err error)
+	Close() error
+}
+
+type writeCloser struct {
+	file   *os.File
+	writer io.Writer
+}
+
+func (u writeCloser) Write(p []byte) (n int, err error) {
+	return u.writer.Write(p)
+}
+
+func (u writeCloser) Close() error {
+	if u.file != nil {
+		return u.file.Close()
+	}
+	return nil
+}
+
+func NewWriter(r io.Writer, d EncodingHint) UTFWriteCloser {
+	var encoder *encoding.Encoder
+	switch d {
+	case UTF8:
+		encoder = unicode.UTF8.NewEncoder()
+	case UTF16LE:
+		winutf := unicode.UTF16(unicode.LittleEndian, unicode.ExpectBOM)
+		encoder = winutf.NewEncoder()
+	case UTF16BE:
+		utf16be := unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM)
+		encoder = utf16be.NewEncoder()
+	}
+
+	if rc, ok := r.(writeCloser); ok {
+		rc.writer = transform.NewWriter(rc.file, unicode.BOMOverride(encoder))
+		return rc
+	}
+
+	return writeCloser{
+		writer: transform.NewWriter(r, unicode.BOMOverride(encoder)),
+	}
+}
+
+func BytesWriter(b *bytes.Buffer, d EncodingHint) io.Writer {
+	return NewWriter(b, d)
+}
