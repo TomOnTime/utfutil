@@ -1,5 +1,7 @@
 module github.com/TomOnTime/utfutil
 
-go 1.14
+go 1.23.0
 
-require golang.org/x/text v0.3.8
+toolchain go1.24.0
+
+require golang.org/x/text v0.23.0
